@@ -1,25 +1,81 @@
 <?php
 
+/**
+ * The BordersInterface class allows for quick setup and execution of API calls to the BORDERS API system
+ */
 class BordersInterface {
+	/**
+	 * @var $publicKey A string that contains the public portion of your API credentials
+	 */
 	private $publicKey;
+
+	/**
+	 * @var $privateKey A string that contains the private portion of your API credentials
+	 */
 	private $privateKey;
 
+
+	/**
+	 * @var $secure Determines weather SSL or HTTP will be used.  When true, SSL will be used
+	 */
 	private $secure = false;
+
+	/**
+	 * Returns weather or not an SSL connection will be made.
+	 *
+	 * @return boolean
+	 */
 	public function isSecure() {
 		return $this->secure;
 	}
+
+	/**
+	 * Sets weather or not a secure connection should be made using SSL
+	 *
+	 * @param boolean $secure
+	 *
+	 * @return void
+	 */
 	public function setSecure($secure) {
 		$this->secure = (boolean)$secure;
 	}
 
+
+	/**
+	 * @var $timeout The number of seconds until a request expires
+	 */
 	private $timeout = 60;
+
+	/**
+	 * Returns the number of seconds used for the timeout
+	 *
+	 * @return int
+	 */
 	public function getTimeout() {
 		return $this->timeout;
 	}
+
+	/**
+	 * Sets the number of seconds to use for the timeout
+	 *
+	 * @param int $timeout The number of seconds
+	 *
+	 * @return void
+	 */
 	public function setTimeout($timeout) {
 		$this->timeout = (int)$timeout;
 	}
 
+	/**
+	 * Builds the BordersInterface by taking your API credentials
+	 *
+	 * @param string $publicKey The 64 character public portion of your API credentials
+	 * @param string $privateKey The 64 character private portion of your API credentials
+	 *
+	 * @return void
+	 *
+	 * @throws BordersAPIException When your keys do not appear to be valid
+	 */
 	public function __construct($publicKey, $privateKey) {
 		if(strlen($publicKey) !== 64 || strlen($privateKey) !== 64) {
 			throw new BordersAPIException('API keys appear invalid');
@@ -28,10 +84,35 @@ class BordersInterface {
 		$this->privateKey = $privateKey;
 	}
 
+	/**
+	 * Submits a GET request to the BORDERS API system
+	 *
+	 * @param string $path The path you are requesting from the API
+	 * @param array $queryParameters An array of key => value pairs for the query string
+	 * @param array $curlOptions An array of user CURL option overrides to be used by the curl_setopt_array(handle, array) function
+	 *
+	 * @return Object Returns the json_decode(d) object from the response.
+	 * @see documentation.borders.biemedia.com/API/response_object
+	 *
+	 * @throws BordersAPIException When there is something wrong with the request or response
+	 */
 	public function get($path, $queryParameters = array(), $curlOptions = array()) {
 		return $this->sendRequest('GET', $path, $queryParameters, null, $curlOptions);
 	}
 
+	/**
+	 * Submits a POST request to the BORDERS API system
+	 *
+	 * @param string $path The path you are requesting from the API
+	 * @param array $body An array of key => value pairs to be json_encode(d) as the body
+	 * @param array $queryParameters An array of key => value pairs for the query string
+	 * @param array $curlOptions An array of user CURL option overrides to be used by the curl_setopt_array(handle, array) function
+	 *
+	 * @return Object Returns the json_decode(d) object from the response.
+	 * @see documentation.borders.biemedia.com/API/response_object
+	 *
+	 * @throws BordersAPIException When there is something wrong with the request or response
+	 */
 	public function post($path, $body, $queryParameters = array(), $curlOptions = array()) {
 		return $this->sendRequest('POST', $path, $queryParameters, $body, $curlOptions);
 	}
@@ -40,11 +121,38 @@ class BordersInterface {
 		// Reserved for uploading files
 	}
 
+	/**
+	 * Submits a POST request to the BORDERS API system
+	 *
+	 * @param string $path The path you are requesting from the API
+	 * @param array $body An array of key => value pairs to be json_encode(d) as the body
+	 * @param array $queryParameters An array of key => value pairs for the query string
+	 * @param array $curlOptions An array of user CURL option overrides to be used by the curl_setopt_array(handle, array) function
+	 *
+	 * @return Object Returns the json_decode(d) object from the response.
+	 * @see documentation.borders.biemedia.com/API/response_object
+	 *
+	 * @throws BordersAPIException When there is something wrong with the request or response
+	 */
 	public function delete($path, $queryParameters = array(), $curlOptions = array()) {
 		return $this->sendRequest('DELETE', $path, $queryParameters, null, $curlOptions);
 	}
 
-	protected function sendRequest($method, $path, $queryParameters = array(), $body = null, $userCurlOptions = array()) {
+	/**
+	 * Builds and sends the request to the BORDERS API system
+	 * 
+	 * @param string $method The capitalized HTTP method used to make the request. For example: GET, POST, DELETE
+	 * @param string $path The path being requested from the BORDERS API system
+	 * @param array $queryParameters An array of key => value pairs for the query string
+	 * @param array $body An array of key => value pairs that will be json_encode(d) to form the body of the request.  May be null
+	 * @param array $userCURLOptions An array of user defined overrides/extra CURL options to be used with the CURL request.
+	 *
+	 * @return Object Returns the json_decode(d) object from the response.
+	 * @see documentation.borders.biemedia.com/API/response_object
+	 *
+	 * @throws BordersAPIException When there is something wrong with the request or response
+	 */
+	protected function sendRequest($method, $path, $queryParameters = array(), $body = null, $userCURLOptions = array()) {
 		$requestURL = 'api.Borders.biemedia.com';
 		$requestURL = ($this->secure) ? 'https://' . $requestURL : 'http://' . $requestURL;
 
@@ -112,6 +220,16 @@ class BordersInterface {
 		return $response;
 	}
 
+	/**
+	 * Generates the signature for the request
+	 *
+	 * @param string $method The capitalized HTTPD method used for the request
+	 * @param string $path The path being requested
+	 * @param array $queryParameters An array of key => value pairs that are going to be used in the query string
+	 * @param string $body The body of the request.  May be a blank string
+	 *
+	 * @return string
+	 */
 	private function generateSignature($method, $path, $queryParameters, $body) {
 		$signature = $method . $this->publicKey . $this->privateKey . $path;
 		foreach($queryParameters as $key => $value) {
