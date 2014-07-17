@@ -89,15 +89,15 @@ class BordersInterface {
 	 *
 	 * @param string $path The path you are requesting from the API
 	 * @param array $queryParameters An array of key => value pairs for the query string
-	 * @param array $curlOptions An array of user CURL option overrides to be used by the curl_setopt_array(handle, array) function
+	 * @param array $CURLOptions An array of user CURL option overrides to be used by the curl_setopt_array(handle, array) function
 	 *
 	 * @return Object Returns the json_decode(d) object from the response.
 	 * @see documentation.borders.biemedia.com/API/response_object
 	 *
 	 * @throws BordersAPIException When there is something wrong with the request or response
 	 */
-	public function get($path, $queryParameters = array(), $curlOptions = array()) {
-		return $this->sendRequest('GET', $path, $queryParameters, null, $curlOptions);
+	public function get($path, $queryParameters = array(), $CURLOptions = array()) {
+		return $this->sendRequest('GET', $path, $queryParameters, null, $CURLOptions);
 	}
 
 	/**
@@ -106,18 +106,18 @@ class BordersInterface {
 	 * @param string $path The path you are requesting from the API
 	 * @param array $body An array of key => value pairs to be json_encode(d) as the body
 	 * @param array $queryParameters An array of key => value pairs for the query string
-	 * @param array $curlOptions An array of user CURL option overrides to be used by the curl_setopt_array(handle, array) function
+	 * @param array $CURLOptions An array of user CURL option overrides to be used by the curl_setopt_array(handle, array) function
 	 *
 	 * @return Object Returns the json_decode(d) object from the response.
 	 * @see documentation.borders.biemedia.com/API/response_object
 	 *
 	 * @throws BordersAPIException When there is something wrong with the request or response
 	 */
-	public function post($path, $body, $queryParameters = array(), $curlOptions = array()) {
-		return $this->sendRequest('POST', $path, $queryParameters, $body, $curlOptions);
+	public function post($path, $body, $queryParameters = array(), $CURLOptions = array()) {
+		return $this->sendRequest('POST', $path, $queryParameters, $body, $CURLOptions);
 	}
 
-	public function put($path, $body, $queryParameters = array(), $curlOptions = array()) {
+	public function put($path, $body, $queryParameters = array(), $CURLOptions = array()) {
 		// Reserved for uploading files
 	}
 
@@ -127,15 +127,15 @@ class BordersInterface {
 	 * @param string $path The path you are requesting from the API
 	 * @param array $body An array of key => value pairs to be json_encode(d) as the body
 	 * @param array $queryParameters An array of key => value pairs for the query string
-	 * @param array $curlOptions An array of user CURL option overrides to be used by the curl_setopt_array(handle, array) function
+	 * @param array $CURLOptions An array of user CURL option overrides to be used by the curl_setopt_array(handle, array) function
 	 *
 	 * @return Object Returns the json_decode(d) object from the response.
 	 * @see documentation.borders.biemedia.com/API/response_object
 	 *
 	 * @throws BordersAPIException When there is something wrong with the request or response
 	 */
-	public function delete($path, $queryParameters = array(), $curlOptions = array()) {
-		return $this->sendRequest('DELETE', $path, $queryParameters, null, $curlOptions);
+	public function delete($path, $queryParameters = array(), $CURLOptions = array()) {
+		return $this->sendRequest('DELETE', $path, $queryParameters, null, $CURLOptions);
 	}
 
 	/**
@@ -193,18 +193,18 @@ class BordersInterface {
 		}
 
 		$CH = curl_init();
-		$curlOptions = [
+		$CURLOptions = [
 			CURLOPT_RETURNTRANSFER => 1,
 			CURLOPT_CUSTOMREQUEST => $method,
 			CURLOPT_URL => $requestURL,
 			CURLOPT_HTTPHEADER => ['Content-Type: Application/JSON']
 		];
 		if($body !== null) {
-			$curlOptions[CURLOPT_POSTFIELDS] = $body;
+			$CURLOptions[CURLOPT_POSTFIELDS] = $body;
 		}
-		$curlOptions = $userCurlOptions + $curlOptions;
+		$CURLOptions = $userCURLOptions + $CURLOptions;
 
-		curl_setopt_array($CH, $curlOptions);
+		curl_setopt_array($CH, $CURLOptions);
 
 		$response = curl_exec($CH);
 		if($response === false) {
@@ -223,7 +223,7 @@ class BordersInterface {
 	/**
 	 * Generates the signature for the request
 	 *
-	 * @param string $method The capitalized HTTPD method used for the request
+	 * @param string $method The capitalized HTTP method used for the request
 	 * @param string $path The path being requested
 	 * @param array $queryParameters An array of key => value pairs that are going to be used in the query string
 	 * @param string $body The body of the request.  May be a blank string
