@@ -215,6 +215,9 @@ class BordersInterface {
 		if(!$data) {
 			throw new BordersAPIException('Unable to decode response data');
 		}
+		if(!property_exists($data, 'response')) {
+			throw new BordersAPIException('Improper response data');
+		}
 		$response = $data->response;
 
 		return $response;
